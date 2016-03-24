@@ -1,6 +1,6 @@
 package com.miao;
 
-import java.io.UnsupportedEncodingException;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -32,6 +32,15 @@ public class CmdManager {
 				String sid = BinHexUtil.binToHex(MD5Util.encrypt(s.getBytes()));
 				u.setSid(sid);
 				u.setRid(rid);
+				Room room = RoomManager.getRoom(rid);
+				if (room == null) {
+					ctx.close();
+					return;
+				} 
+				ConcurrentHashMap<String, ChannelHandlerContext> connections = room.getConnections();
+				if (connections.putIfAbsent(ctx.channel().id().toString(), ctx) != null) {
+					return;
+				}
 				
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -40,6 +49,7 @@ public class CmdManager {
 			
 			break;
 		case 1:
+			System.out.println(RoomManager.getRoom((short)1).getConnections().size());
 			break;
 		default:
 			break;

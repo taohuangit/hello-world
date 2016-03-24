@@ -1,6 +1,7 @@
 package com.miao.test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -16,8 +17,24 @@ import com.miao.util.ByteUtil;
 
 public class SocketClient {
 	public static void main(String[] args) throws IOException, InterruptedException {
-		for (int i = 0; i < 10; i++) {
-			test();
+		for (int i = 0; i < 1; i++) {
+			new Thread(new Runnable() {
+				
+				public void run() {
+					try {
+						test();
+					} catch (UnknownHostException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}).start();
 		}
 	}
 	
@@ -26,14 +43,14 @@ public class SocketClient {
 		System.out.println(socket);
 		for (int i = 0; i < 1; i++) {
 			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("rid", 1234);
+			map.put("rid", 1);
 			String json = JSON.toJSONString(map);
 			
 			byte[] header = new byte[6];
 			byte[] bjson = json.getBytes();
 			
 			ByteUtil.putInt(header, bjson.length, 0);
-			ByteUtil.putShort(header, (short)0, 4);
+			ByteUtil.putShort(header, (short)1, 4);
 			
 			System.out.println(header.length);
 			System.out.println(bjson.length);
@@ -53,7 +70,11 @@ public class SocketClient {
 //			}
 			
 		}
-		socket.close();
 
+		InputStream is = socket.getInputStream();
+		byte[] dst = new byte[1024];
+		while ((is.read(dst)) != -1) {
+			System.out.println("get: " + BinHexUtil.binToHex(dst));
+		}
 	}
 }
