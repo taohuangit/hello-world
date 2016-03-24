@@ -23,7 +23,7 @@ public class ByteUtil {
      * @return 
      */  
     public static short getShort(byte[] b, int index) {  
-        return (short) (((b[index + 1] << 8) | b[index + 0] & 0xff));  
+        return (short) (((b[index + 0] << 8) | b[index + 1] & 0xff));  
     }  
   
     /** 
