@@ -1,55 +1,40 @@
 package com.miao;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.io.UnsupportedEncodingException;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.miao.util.BinHexUtil;
 import com.miao.util.ByteUtil;
-import com.miao.util.MD5Util;
 
 import io.netty.channel.ChannelHandlerContext;
 
 public class CmdManager {
-	
-	
-	public static void process(ChannelHandlerContext ctx, byte[] src) {
+	public static void cmd(ChannelHandlerContext ctx, byte[] src) throws UnsupportedEncodingException {
 		int cmd = ByteUtil.getShort(src, 4);
-		System.out.println("cmd: " + cmd);
+		String id = ctx.channel().id().toString();
+		JSONObject json = JSON.parseObject(new String(src, 6, src.length-6, "utf-8"));
 		switch (cmd) {
-		case COMMAND.LOGIN:// login
-			JSONObject json;
-			try {
-				json = JSON.parseObject(new String(src, 6, src.length-6));
-				Short rid = json.getShort("rid");
-				User u = new User();
-				u.setUid(0);
-				String s = ctx.toString();
-				System.out.println(ctx.channel());
-				System.out.println(ctx.channel().id());
-				System.out.println(s);
-				System.out.println(ctx.name());
-				String sid = BinHexUtil.binToHex(MD5Util.encrypt(s.getBytes()));
-				u.setSid(sid);
-				u.setRid(rid);
-				Room room = RoomManager.getRoom(rid);
-				if (room == null) {
-					ctx.close();
-					return;
-				} 
-				ConcurrentHashMap<String, ChannelHandlerContext> connections = room.getConnections();
-				if (connections.putIfAbsent(ctx.channel().id().toString(), ctx) != null) {
-					return;
-				}
-				
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
+		case COMMAND.LOGIN:
+			Connection conn = new Connection();
+			conn.setId(id);
+			conn.setCurrentRoomId((short)0);
+			conn.setPreviousRoomId((short)0);
+			CommunicationProvider.addIfAbsent(conn);
 			break;
-		case 1:
-			System.out.println(RoomManager.getRoom((short)1).getConnections().size());
+		case COMMAND.LOGOUT:
+			break;
+		case COMMAND.INTO_ROOM:
+			
+			CommunicationProvider.changeRoom(id, json.getShort("rid"));
+			break;
+		case COMMAND.SEND_MSG:
+			String msg = json.getString("msg");
+			String dst = json.getString("dst");
+			if (dst == null) {
+				CommunicationProvider.sendRoomMsg(id, msg);
+			} else {
+				CommunicationProvider.sendMsg(id, dst, msg);
+			}
 			break;
 		default:
 			break;

@@ -2,18 +2,32 @@ package com.miao;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import io.netty.channel.ChannelHandlerContext;
-
 public class Room {
-	private Short rid;
+	private Short roomId;
 	
-	private ConcurrentHashMap<Short, RoomGroup> groups;
+	private ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<String, Connection>();
 	
-	private ConcurrentHashMap<String, ChannelHandlerContext> connections = new ConcurrentHashMap<String, ChannelHandlerContext>();
-
-	public ConcurrentHashMap<String, ChannelHandlerContext> getConnections() {
-		return connections;
+	public void sendRoomMsg(String id, String msg) {
+		
 	}
 	
+	public void sendMsg(String id, String toId, String msg) {
+		
+	}
+
+	public Short getRoomId() {
+		return roomId;
+	}
+
+	public void setRoomId(Short roomId) {
+		this.roomId = roomId;
+	}
 	
+	public void remove(String connId) {
+		connections.remove(connId);
+	}
+	
+	public void addIfAbsent(Connection conn) {
+		connections.putIfAbsent(conn.getId(), conn);
+	}
 }

@@ -138,7 +138,8 @@ public class GeneralClient {
 			byte[] dst = new byte[n];
 			buf.readBytes(dst);
 			System.out.println(BinHexUtil.binToHex(dst));
-			CmdManager.process(ctx, dst);
+			CmdManager.cmd(ctx, dst);
+			ctx.writeAndFlush(msg);
 			log("channelRead", " ", Thread.currentThread());
 		}
 		

@@ -50,7 +50,7 @@ public class SocketClient {
 			byte[] bjson = json.getBytes();
 			
 			ByteUtil.putInt(header, bjson.length, 0);
-			ByteUtil.putShort(header, (short)1, 4);
+			ByteUtil.putShort(header, (short)0, 4);
 			
 			System.out.println(header.length);
 			System.out.println(bjson.length);
