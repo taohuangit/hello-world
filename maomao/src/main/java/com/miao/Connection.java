@@ -1,11 +1,15 @@
 package com.miao;
 
+import io.netty.channel.ChannelHandlerContext;
+
 public class Connection {
 	private String id;
 	
 	private Short currentRoomId;
 	
 	private Short previousRoomId;
+	
+	private ChannelHandlerContext ctx;
 
 	public String getId() {
 		return id;
@@ -30,6 +34,17 @@ public class Connection {
 	public void setPreviousRoomId(Short previousRoomId) {
 		this.previousRoomId = previousRoomId;
 	}
+
+	public ChannelHandlerContext getCtx() {
+		return ctx;
+	}
+
+	public void setCtx(ChannelHandlerContext ctx) {
+		this.ctx = ctx;
+	}
 	
-	
+	@Override
+	public String toString() {
+		return super.toString();
+	}
 }

@@ -17,7 +17,7 @@ import com.miao.util.ByteUtil;
 
 public class SocketClient {
 	public static void main(String[] args) throws IOException, InterruptedException {
-		for (int i = 0; i < 1; i++) {
+		for (int i = 0; i < 100; i++) {
 			new Thread(new Runnable() {
 				
 				public void run() {

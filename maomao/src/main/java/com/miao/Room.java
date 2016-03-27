@@ -11,7 +11,7 @@ public class Room {
 		
 	}
 	
-	public void sendMsg(String id, String toId, String msg) {
+	public void sendBarrage(String id, String toId, String msg) {
 		
 	}
 

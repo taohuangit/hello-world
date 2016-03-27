@@ -11,23 +11,43 @@ public class CommunicationProvider {
 		return connections.putIfAbsent(conn.getId(), conn);
 	}
 	
-	public static void changeRoom(String connectionId, Short roomId) {
-		Connection conn = connections.get(connectionId);
-		Room previousRoom = rooms.get(conn.getPreviousRoomId());
-		previousRoom.remove(connectionId);
-		
-		Room currentRoom = rooms.get(conn.getCurrentRoomId());
-		currentRoom.addIfAbsent(conn);
+	public static void intoRoom(String connId, Short roomId) {
+		Connection conn = connections.get(connId);
+		if (conn == null) {
+			conn = new Connection();
+			conn.setId(connId);
+			conn.setCurrentRoomId(roomId);
+			conn.setPreviousRoomId((short)-1);
+			connections.put(connId, conn);
+		} else {
+			conn.setPreviousRoomId(conn.getCurrentRoomId());
+			conn.setCurrentRoomId(roomId);
+			Room previousRoom = rooms.get(conn.getPreviousRoomId());
+			previousRoom.remove(connId);
+			Room currentRoom = rooms.get(conn.getCurrentRoomId());
+			currentRoom.addIfAbsent(conn);
+		}
 	}
 	
-	public static void sendRoomMsg(String connectionId, String msg) {
-		Room room = rooms.get(connections.get(connectionId).getCurrentRoomId());
-		room.sendRoomMsg(connectionId, msg);
+	public static void outofRoom(String connId) {
+		Connection conn = connections.remove(connId);
+		if (conn != null) {
+			Room room = rooms.get(conn.getCurrentRoomId());
+			room.remove(conn.getId());
+		}
+	}
+	
+	public static void sendBarrage(String connId, String msg) {
+		Connection conn = connections.get(connId);
+		if (conn != null) {
+			Room room = rooms.get(conn.getCurrentRoomId());
+			room.sendRoomMsg(connId, msg);
+		}
 	}
 	
 	public static void sendMsg(String connId, String toConnId, String msg) {
 		Connection toConn = connections.get(toConnId);
 		Room room = rooms.get(toConn.getCurrentRoomId());
-		room.sendMsg(connId, toConnId, msg);
+		room.sendBarrage(connId, toConnId, msg);
 	}
 }
