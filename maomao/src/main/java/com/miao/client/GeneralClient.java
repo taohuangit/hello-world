@@ -2,11 +2,7 @@ package com.miao.client;
 
 import java.net.SocketAddress;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.miao.CmdManager;
-import com.miao.util.BinHexUtil;
-import com.miao.util.ByteUtil;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
@@ -137,9 +133,8 @@ public class GeneralClient {
 			int n = buf.readableBytes();
 			byte[] dst = new byte[n];
 			buf.readBytes(dst);
-			System.out.println(BinHexUtil.binToHex(dst));
+//			System.out.println(BinHexUtil.binToHex(dst));
 			CmdManager.cmd(ctx, dst);
-			ctx.writeAndFlush(msg);
 			log("channelRead", " ", Thread.currentThread());
 		}
 		
