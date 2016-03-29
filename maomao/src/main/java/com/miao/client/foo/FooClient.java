@@ -1,4 +1,4 @@
-package com.miao.client;
+package com.miao.client.foo;
 
 import java.net.SocketAddress;
 
@@ -19,34 +19,30 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
-public class GeneralClient {
+public class FooClient {
 	
 	private int port;
 	
-	public GeneralClient(int p) {
+	public FooClient(int p) {
 		this.port = p;
 	}
 	
 	public void init() {
-		EventLoopGroup bossgroup = new NioEventLoopGroup();
-		EventLoopGroup workergroup = new NioEventLoopGroup();
-		System.out.println(bossgroup);
-		System.out.println(workergroup);
+		EventLoopGroup group = new NioEventLoopGroup(1);
 
 		try {
 			ServerBootstrap server = new ServerBootstrap();
-			server.group(bossgroup, workergroup);
+			server.group(group);
 			server.channel(NioServerSocketChannel.class);
 			server.option(ChannelOption.SO_BACKLOG, 1024);
 			server.childHandler(new ChannelInitializer<SocketChannel>() {
 
 				@Override
 				protected void initChannel(SocketChannel sc) throws Exception {
-					sc.pipeline().addLast(new LengthFieldBasedFrameDecoder(4096, 0, 4, 2, 0));
+					sc.pipeline().addLast(new LengthFieldBasedFrameDecoder(4096, 0, 4, 20, 0));
 					sc.pipeline().addLast(new InHandler());
 				}
 			});
-			
 			
 			try {
 				ChannelFuture future = server.bind(port).sync();
@@ -56,11 +52,8 @@ public class GeneralClient {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} finally {
-				bossgroup.shutdownGracefully();
-				workergroup.shutdownGracefully();
+				group.shutdownGracefully();
 			}
-			
-			
 			
 		} finally {
 			
@@ -123,7 +116,6 @@ public class GeneralClient {
 		public void channelActive(ChannelHandlerContext ctx) throws Exception {
 			// TODO Auto-generated method stub
 			super.channelActive(ctx);
-			log("channelActive");
 		}
 		
 		@Override
@@ -135,61 +127,47 @@ public class GeneralClient {
 			buf.readBytes(dst);
 //			System.out.println(BinHexUtil.binToHex(dst));
 			CmdManager.cmd(ctx, dst);
-			log("channelRead", " ", Thread.currentThread());
 		}
 		
 		@Override
 		public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
 			// TODO Auto-generated method stub
 			super.channelRegistered(ctx);
-			log("channelRegistered", " ", Thread.currentThread());
 		}
 		
 		@Override
 		public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
 			// TODO Auto-generated method stub
 			super.channelUnregistered(ctx);
-			log("channelUnregistered", " ", Thread.currentThread());
 		}
 		
 		@Override
 		public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 			// TODO Auto-generated method stub
 			super.channelInactive(ctx);
-			log("channelInactive", " ", Thread.currentThread());
 		}
 		
 		@Override
 		public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
 			// TODO Auto-generated method stub
 			super.channelReadComplete(ctx);
-			log("channelReadComplete", " ", Thread.currentThread());
 		}
 		
 		@Override
 		public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
 			// TODO Auto-generated method stub
 			super.channelWritabilityChanged(ctx);
-			log("channelWritabilityChanged", " ", Thread.currentThread());
 		}
 		
 		@Override
 		public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 			// TODO Auto-generated method stub
 			super.exceptionCaught(ctx, cause);
-			log("exceptionCaught", " ", Thread.currentThread());
 		}
 		
 	}
-
-	private static void log(Object ... objects) {
-		for (Object o : objects) {
-//			System.out.print(o);
-		}
-//		System.out.println();
-	}
 	
 	public static void main(String[] args) {
-		new GeneralClient(8080).init();
+		new FooClient(8080).init();
 	}
 }

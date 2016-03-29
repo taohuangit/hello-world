@@ -32,14 +32,14 @@ public class CmdManager {
 		case COMMAND.INTO_ROOM:
 			User user = new User();
 			user.setUid(json.getInteger("uid"));
-			CommunicationProvider.intoRoom(ctx, user, json.getShort("rid"));
+			ConnectionManager.intoRoom(ctx, user, json.getInteger("rid"));
 			break;
 			
 		case COMMAND.OUTOF_ROOM:
-			CommunicationProvider.outofRoom(ctx);
+			ConnectionManager.outofRoom(ctx);
 			break;
 		case COMMAND.SEND_BARRAGE:
-			Connection conn = CommunicationProvider.getConnection(connId);
+			Connection conn = ConnectionManager.getConnection(connId);
 			if (conn == null) {
 				break;
 			}
@@ -62,8 +62,8 @@ public class CmdManager {
 		case COMMAND.SEND_MSG:
 			break;
 			
-		case COMMAND.ROOM_INFO:
-			CommunicationProvider.roomInfo(ctx);
+		case COMMAND.ROOM_LIST:
+			ConnectionManager.roomList(ctx);
 			break;
 		default:
 			break;
@@ -77,7 +77,7 @@ public class CmdManager {
 				while (!Thread.currentThread().isInterrupted() && !shutdown) {
 					try {
 						Barrage barrage = barrageCache.take();
-						CommunicationProvider.sendBarrage(barrage);
+						ConnectionManager.sendBarrage(barrage);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

@@ -7,11 +7,11 @@ public class Connection {
 	
 	private User user;
 	
-	private Short currentRoomId;
+	private Integer currentRoomId;
 	
-	private Short previousRoomId;
+	private Integer previousRoomId;
 	
-	ChannelHandlerContext ctx;
+	private ChannelHandlerContext ctx;
 	
 	public String getId() {
 		return id;
@@ -21,19 +21,19 @@ public class Connection {
 		this.id = id;
 	}
 
-	public Short getCurrentRoomId() {
+	public Integer getCurrentRoomId() {
 		return currentRoomId;
 	}
 
-	public void setCurrentRoomId(Short currentRoomId) {
+	public void setCurrentRoomId(Integer currentRoomId) {
 		this.currentRoomId = currentRoomId;
 	}
 
-	public Short getPreviousRoomId() {
+	public Integer getPreviousRoomId() {
 		return previousRoomId;
 	}
 
-	public void setPreviousRoomId(Short previousRoomId) {
+	public void setPreviousRoomId(Integer previousRoomId) {
 		this.previousRoomId = previousRoomId;
 	}
 

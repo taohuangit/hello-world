@@ -5,7 +5,7 @@ public class Barrage {
 	
 	private User user;
 	
-	private short roomId;
+	private Integer roomId;
 	
 	private String barrage;
 
@@ -17,11 +17,11 @@ public class Barrage {
 		this.connId = connId;
 	}
 
-	public short getRoomId() {
+	public Integer getRoomId() {
 		return roomId;
 	}
 
-	public void setRoomId(short roomId) {
+	public void setRoomId(Integer roomId) {
 		this.roomId = roomId;
 	}
 

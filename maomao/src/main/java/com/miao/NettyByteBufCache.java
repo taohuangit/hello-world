@@ -12,7 +12,7 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.util.ReferenceCountUtil;
 
-public class ByteBufCache {
+public class NettyByteBufCache {
 
 	public static final ByteBufAllocator allocator = PooledByteBufAllocator.DEFAULT;
 
