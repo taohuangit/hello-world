@@ -8,4 +8,10 @@ public class ClientProfile {
 	public static final String CMD_KEEPALIVE = "keeplive";
 	
 	public static final String CMD_THIRDCHATMSG = "thirdchatmsg";
+	
+	public static final String CMD_LOGIN_RESPONSE = "loginresponse";
+	
+	public static final String CMD_LOGIN_REQUEST = "loginrequest";
+	
+	public static final String CMD_INTO_ROOM = "intoroom";
 }

@@ -1,8 +1,15 @@
 package com.miao.client.general;
 
 import java.net.SocketAddress;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.miao.COMMAND;
 import com.miao.CmdManager;
+import com.miao.Connection;
+import com.miao.Connection.RoomStatus;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
@@ -119,23 +126,44 @@ public class GeneralClient {
 	}
 	
 	static class InHandler extends ChannelInboundHandlerAdapter {
+		
+		private Connection conn;
+		
 		@Override
 		public void channelActive(ChannelHandlerContext ctx) throws Exception {
-			// TODO Auto-generated method stub
-			super.channelActive(ctx);
-			log("channelActive");
+			conn = new Connection();
+			conn.setConnId(ctx.channel().id().toString());
+			conn.setCtx(ctx);
+			conn.setRooms(null);
+			conn.setUser(null);
+			conn.setRoomStatus(RoomStatus.INIT);
 		}
 		
 		@Override
 		public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-			// TODO Auto-generated method stub
 			ByteBuf buf = (ByteBuf) msg;
 			int n = buf.readableBytes();
 			byte[] dst = new byte[n];
 			buf.readBytes(dst);
-//			System.out.println(BinHexUtil.binToHex(dst));
-			CmdManager.cmd(ctx, dst);
-			log("channelRead", " ", Thread.currentThread());
+			
+			CharsetDecoder decoder = Charset.forName("utf-8").newDecoder();
+			
+			JSONObject json = JSON.parseObject(dst, 0, dst.length-0, decoder, JSONObject.class);
+			
+			int cmd = json.getIntValue("cmd");
+			switch (cmd) {
+			case COMMAND.INTO_ROOMS:
+				
+				break;
+			case COMMAND.SEND_BARRAGE:
+				break;
+
+			case COMMAND.LOGIN_REQUEST:
+				
+				break;
+			default:
+				break;
+			}
 		}
 		
 		@Override

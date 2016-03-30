@@ -1,6 +1,6 @@
 package com.miao;
 
-import java.util.Set;
+import java.util.Map;
 
 import io.netty.channel.ChannelHandlerContext;
 
@@ -11,11 +11,19 @@ public class Connection {
 	
 	private User user;
 	
-	private Integer roomId;
+	private Map<Integer, RoomInfo> rooms;
 	
-	private Integer preRoomId;
+	private volatile RoomStatus roomStatus = RoomStatus.INIT;
 	
-	private Set<Integer> extRooms;
+	private volatile UserStatus userStatus = UserStatus.OFF;
+	
+	public enum RoomStatus {
+		INIT, REQUEST, AUTH, INROOM, OUTROOM
+	}
+	
+	public enum UserStatus {
+		OFF, ON
+	}
 	
 	public ChannelHandlerContext getCtx() {
 		return ctx;
@@ -41,32 +49,28 @@ public class Connection {
 		this.user = user;
 	}
 
-	public Integer getRoomId() {
-		return roomId;
+	public Map<Integer, RoomInfo> getRooms() {
+		return rooms;
 	}
 
-	public void setRoomId(Integer roomId) {
-		this.roomId = roomId;
+	public void setRooms(Map<Integer, RoomInfo> rooms) {
+		this.rooms = rooms;
 	}
 
-	public Set<Integer> getExtRooms() {
-		return extRooms;
+	public RoomStatus getRoomStatus() {
+		return roomStatus;
 	}
 
-	public void setExtRooms(Set<Integer> extRooms) {
-		this.extRooms = extRooms;
+	public void setRoomStatus(RoomStatus status) {
+		this.roomStatus = status;
 	}
 
-	public Integer getPreRoomId() {
-		return preRoomId;
+	public UserStatus getUserStatus() {
+		return userStatus;
 	}
 
-	public void setPreRoomId(Integer preRoomId) {
-		this.preRoomId = preRoomId;
+	public void setUserStatus(UserStatus userStatus) {
+		this.userStatus = userStatus;
 	}
-
-	@Override
-	public String toString() {
-		return super.toString();
-	}
+	
 }

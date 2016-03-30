@@ -3,10 +3,19 @@ package com.miao.client.foo;
 import java.net.SocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.miao.CmdManager;
+import com.miao.Barrage;
+import com.miao.Connection;
+import com.miao.Connection.RoomStatus;
+import com.miao.Connection.UserStatus;
+import com.miao.ConnectionManager;
+import com.miao.Room;
+import com.miao.RoomInfo;
+import com.miao.User;
 import com.miao.util.BinHexUtil;
 
 import io.netty.bootstrap.ServerBootstrap;
@@ -122,10 +131,25 @@ public class FooClient {
 		
 		private FooSendHeartbeatTask heartbeatTask;
 		
+		private Connection connection;
+		
 		@Override
 		public void channelActive(ChannelHandlerContext ctx) throws Exception {
 			heartbeatTask = new FooSendHeartbeatTask(ctx);
 			ctx.executor().execute(heartbeatTask);
+			
+			connection = new Connection();
+			connection.setConnId(ctx.channel().id().toString());
+			connection.setCtx(ctx);
+			connection.setUser(null);
+			connection.setRoomStatus(Connection.RoomStatus.REQUEST);
+			Map<Integer, RoomInfo> rooms = new HashMap<Integer, RoomInfo>();
+//			rooms.put(1, new RoomInfo(1, 0));
+//			rooms.put(2, new RoomInfo(2, 0));
+//			rooms.put(3, new RoomInfo(3, 0));
+			connection.setRooms(rooms);
+			
+			// send login
 		}
 		
 		@Override
@@ -134,7 +158,6 @@ public class FooClient {
 			ByteBuf buf = (ByteBuf) msg;
 			byte[] dst = new byte[buf.readableBytes()];
 			buf.readBytes(dst);
-
 			
 			CharsetDecoder decoder = Charset.forName("utf-8").newDecoder();
 			
@@ -147,13 +170,46 @@ public class FooClient {
 			if (cmdid.equals(ClientProfile.CMD_KEEPALIVE)) {
 				heartbeatTask.setLastTime(System.currentTimeMillis());
 			} else if (cmdid.equals(ClientProfile.CMD_THIRDCHATMSG)) {
-				int roomId = json.getIntValue("");
-				String content = json.getString("");
-				String name = json.getString("");
-				int vod = json.getIntValue("");
+				if (connection.getRoomStatus() != RoomStatus.INROOM || connection.getUserStatus() != UserStatus.ON) {
+					return;
+				}
+				int roomId = json.getIntValue("rid");
+				String content = json.getString("cnt");
+				String name = json.getString("name");
+				int vod = json.getIntValue("vod");
+				Barrage barrage = new Barrage();
+				barrage.setConnId(connection.getConnId());
+				barrage.setRoomId(roomId);
+				barrage.setUser(new User());
+				barrage.setContent(content);
+				
+				ConnectionManager.sendBarrage(connection, barrage);
+			} else if (cmdid.equals(ClientProfile.CMD_LOGIN_RESPONSE)) {
+				for (RoomInfo r : connection.getRooms().values()) {
+					r.setStatus(1);
+				}
+				connection.setRoomStatus(RoomStatus.AUTH);
+				ConnectionManager.intoRoom(connection);
+			} else if (cmdid.equals(ClientProfile.CMD_INTO_ROOM)) {
+				int roomId = json.getIntValue("rid");
+				Room room = ConnectionManager.getRoom(roomId);
+				if (room == null) {
+					
+				} else {
+					connection.getRooms().put(roomId, new RoomInfo(roomId, 1));
+					connection.setRoomStatus(RoomStatus.AUTH);
+					ConnectionManager.intoRoom(connection);
+				}
+			} else if (cmdid.equals(ClientProfile.CMD_LOGIN_REQUEST)) {
+				String username = json.getString("uname");
+				String password = json.getString("pwd");
+				User user = new User();
+				user.setUid(1);
+				user.setUsername(username);
+				connection.setUser(user);
+				connection.setUserStatus(UserStatus.ON);
 			}
 		
-//			CmdManager.cmd(ctx, dst);
 		}
 		
 		@Override
@@ -170,8 +226,7 @@ public class FooClient {
 		
 		@Override
 		public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-			// TODO Auto-generated method stub
-			super.channelInactive(ctx);
+			ConnectionManager.outofRoom(connection);
 		}
 		
 		@Override
@@ -188,8 +243,11 @@ public class FooClient {
 		
 		@Override
 		public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-			// TODO Auto-generated method stub
-			super.exceptionCaught(ctx, cause);
+			cause.printStackTrace();
+			
+			ConnectionManager.outofRoom(connection);
+			
+			ctx.close();
 		}
 		
 	}

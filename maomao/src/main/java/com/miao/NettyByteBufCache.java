@@ -2,8 +2,8 @@ package com.miao;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -21,7 +21,7 @@ public class NettyByteBufCache {
 
 	public static final ByteBufAllocator allocator = PooledByteBufAllocator.DEFAULT;
 
-	private static final BlockingQueue<ByteBuf> bufferQueue = new ArrayBlockingQueue<ByteBuf>(100);
+	private static final ConcurrentLinkedQueue<ByteBuf> bufferQueue = new ConcurrentLinkedQueue<ByteBuf>();
 
 	private static final BlockingQueue<ByteBuf> toCleanQueue = new LinkedBlockingQueue<ByteBuf>();
 
@@ -35,14 +35,10 @@ public class NettyByteBufCache {
 		public void run() {
 			
 			for (int i = 0; i < QUEUE_SIZE; i++) {
-				try {
-					ByteBuf buffer = allocator.buffer();
-					// 确保是本线程释放
-					buffer.retain();
-					bufferQueue.put(buffer);
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-				}
+				ByteBuf buffer = allocator.buffer(1024);
+				// 确保是本线程释放
+				buffer.retain();
+				bufferQueue.offer(buffer);
 			}
 			
 			long lastCleanTime = System.currentTimeMillis();
@@ -72,26 +68,40 @@ public class NettyByteBufCache {
 		thread.start();
 	}
 
-	public static ByteBuf alloc() {
-		try {
-			ByteBuf buf = bufferQueue.take();
-//			System.out.println("alloc: " + buf);
-			return buf;
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
-		return null;
-	}
-
-	public static void release(ByteBuf buf) {
-//		System.out.println("release: " + buf);
-		toCleanQueue.add(buf);
+	public static void flushData(ChannelHandlerContext ctx, byte[] data) {
+		flushData(ctx, data, 256);
 	}
 	
-	public static void flushData(ChannelHandlerContext ctx, byte[] data) {
-		final ByteBuf buf = NettyByteBufCache.alloc();
+	public static void flushData(ChannelHandlerContext ctx, byte[] data, int maxSize) {
+		if (data == null || data.length > maxSize) {
+			return;
+		}
+		final ByteBuf buf;
+		final ConcurrentLinkedQueue<ByteBuf> queue;
+		switch (maxSize) {
+		case 256:
+			queue = bufferQueue;
+			buf = queue.poll();
+			break;
+		case 1024:
+			queue = null;
+			buf = null;
+			break;
+
+		case 4096:
+			queue = null;
+			buf = null;
+			break;
+		default:
+			queue = null;
+			buf = null;
+			break;
+		}
+		
 		if (buf == null) {
 			return;
+		} else {
+			buf.clear();
 		}
 		
 		buf.writeBytes(data);
@@ -101,7 +111,7 @@ public class NettyByteBufCache {
 			promise.addListener(new GenericFutureListener<Future<Void>>() {
 
 				public void operationComplete(Future<Void> future) throws Exception {
-					NettyByteBufCache.release(buf);
+					queue.offer(buf);
 				}
 				
 			});

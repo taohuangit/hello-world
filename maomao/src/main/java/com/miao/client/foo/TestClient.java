@@ -7,6 +7,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.math.RandomUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -39,7 +40,7 @@ public class TestClient {
             b.handler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 public void initChannel(SocketChannel ch) throws Exception {
-                    ch.pipeline().addLast(new TimeClientHandler());
+                    ch.pipeline().addLast(new InHandler());
                 }
             });
 
@@ -53,7 +54,7 @@ public class TestClient {
         }
     }
     
-    static class TimeClientHandler extends ChannelInboundHandlerAdapter {
+    static class InHandler extends ChannelInboundHandlerAdapter {
     	
     	private FooSendHeartbeatTask heartbeatTask;
     	
@@ -87,7 +88,7 @@ public class TestClient {
 				
 				public void run() {
 					FooReceiveBarrage barrage = new FooReceiveBarrage();
-					barrage.setContent(RandomStringUtils.random(10));
+					barrage.setContent(RandomStringUtils.randomAscii(10));
 					barrage.setFromname(name);
 					barrage.setRoomid(roomId);
 					
