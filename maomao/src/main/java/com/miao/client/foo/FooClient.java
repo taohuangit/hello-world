@@ -1,8 +1,13 @@
 package com.miao.client.foo;
 
 import java.net.SocketAddress;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.miao.CmdManager;
+import com.miao.util.BinHexUtil;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
@@ -61,6 +66,8 @@ public class FooClient {
 	}
 	
 	static class OutHandler extends ChannelOutboundHandlerAdapter {
+		
+		
 		@Override
 		public void disconnect(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
 			// TODO Auto-generated method stub
@@ -112,21 +119,41 @@ public class FooClient {
 	}
 	
 	static class InHandler extends ChannelInboundHandlerAdapter {
+		
+		private FooSendHeartbeatTask heartbeatTask;
+		
 		@Override
 		public void channelActive(ChannelHandlerContext ctx) throws Exception {
-			// TODO Auto-generated method stub
-			super.channelActive(ctx);
+			heartbeatTask = new FooSendHeartbeatTask(ctx);
+			ctx.executor().execute(heartbeatTask);
 		}
 		
 		@Override
 		public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 			// TODO Auto-generated method stub
 			ByteBuf buf = (ByteBuf) msg;
-			int n = buf.readableBytes();
-			byte[] dst = new byte[n];
+			byte[] dst = new byte[buf.readableBytes()];
 			buf.readBytes(dst);
-//			System.out.println(BinHexUtil.binToHex(dst));
-			CmdManager.cmd(ctx, dst);
+
+			
+			CharsetDecoder decoder = Charset.forName("utf-8").newDecoder();
+			
+			JSONObject json = JSON.parseObject(dst, ClientProfile.HEADER_LENGTH, dst.length - ClientProfile.HEADER_LENGTH, decoder, JSONObject.class);
+			
+			System.out.print(BinHexUtil.binToHex(dst, 0, ClientProfile.HEADER_LENGTH));
+			System.out.println(json);
+			
+			String cmdid = json.getString("cmdid");
+			if (cmdid.equals(ClientProfile.CMD_KEEPALIVE)) {
+				heartbeatTask.setLastTime(System.currentTimeMillis());
+			} else if (cmdid.equals(ClientProfile.CMD_THIRDCHATMSG)) {
+				int roomId = json.getIntValue("");
+				String content = json.getString("");
+				String name = json.getString("");
+				int vod = json.getIntValue("");
+			}
+		
+//			CmdManager.cmd(ctx, dst);
 		}
 		
 		@Override

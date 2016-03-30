@@ -13,6 +13,18 @@ public class BinHexUtil {
 		}
 		return sb.toString();
 	}
+	
+	public static String binToHex(byte buf[], int index, int length) {
+		StringBuffer sb = new StringBuffer();
+		for (int i = index; i < length; i++) {
+			String hex = Integer.toHexString(buf[i] & 0xFF);
+			if (hex.length() == 1) {
+				hex = '0' + hex;
+			}
+			sb.append(hex.toLowerCase());
+		}
+		return sb.toString();
+	}
 
 	public static byte[] hexToBin(String hexStr) {
 		if (hexStr.length() < 1)

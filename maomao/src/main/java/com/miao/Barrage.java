@@ -5,9 +5,11 @@ public class Barrage {
 	
 	private User user;
 	
+	private Integer platformId;
+	
 	private Integer roomId;
 	
-	private String barrage;
+	private String content;
 
 	public String getConnId() {
 		return connId;
@@ -25,19 +27,27 @@ public class Barrage {
 		this.roomId = roomId;
 	}
 
-	public String getBarrage() {
-		return barrage;
-	}
-
-	public void setBarrage(String barrage) {
-		this.barrage = barrage;
-	}
-
 	public User getUser() {
 		return user;
 	}
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public Integer getPlatformId() {
+		return platformId;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public void setPlatformId(Integer platformId) {
+		this.platformId = platformId;
 	}
 }

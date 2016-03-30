@@ -63,8 +63,8 @@ public class SocketClient {
 				byte[] header = new byte[6];
 				byte[] bjson = json.getBytes();
 
-				ByteUtil.putInt(header, bjson.length, 0);
-				ByteUtil.putShort(header, COMMAND.INTO_ROOM, 4);
+				ByteUtil.putInt(header, 0, bjson.length);
+				ByteUtil.putShort(header, 4, COMMAND.INTO_ROOMS);
 
 				OutputStream os = socket.getOutputStream();
 				// for (byte b : header) {
@@ -82,8 +82,8 @@ public class SocketClient {
 				String bJson = JSON.toJSONString(barrage);
 				byte[] bHeader = new byte[6];
 				byte[] barrageJson = bJson.getBytes();
-				ByteUtil.putInt(bHeader, barrageJson.length, 0);
-				ByteUtil.putShort(bHeader, COMMAND.SEND_BARRAGE, 4);
+				ByteUtil.putInt(bHeader, 0, barrageJson.length);
+				ByteUtil.putShort(bHeader, 4, COMMAND.SEND_BARRAGE);
 
 				os.write(bHeader);
 				os.write(barrageJson);

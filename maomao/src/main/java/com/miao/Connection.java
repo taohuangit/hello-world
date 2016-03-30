@@ -1,42 +1,22 @@
 package com.miao;
 
+import java.util.Set;
+
 import io.netty.channel.ChannelHandlerContext;
 
 public class Connection {
-	private String id;
+	private ChannelHandlerContext ctx;
+	
+	private String connId;
 	
 	private User user;
 	
-	private Integer currentRoomId;
+	private Integer roomId;
 	
-	private Integer previousRoomId;
+	private Integer preRoomId;
 	
-	private ChannelHandlerContext ctx;
+	private Set<Integer> extRooms;
 	
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public Integer getCurrentRoomId() {
-		return currentRoomId;
-	}
-
-	public void setCurrentRoomId(Integer currentRoomId) {
-		this.currentRoomId = currentRoomId;
-	}
-
-	public Integer getPreviousRoomId() {
-		return previousRoomId;
-	}
-
-	public void setPreviousRoomId(Integer previousRoomId) {
-		this.previousRoomId = previousRoomId;
-	}
-
 	public ChannelHandlerContext getCtx() {
 		return ctx;
 	}
@@ -45,12 +25,44 @@ public class Connection {
 		this.ctx = ctx;
 	}
 
+	public String getConnId() {
+		return connId;
+	}
+
+	public void setConnId(String connId) {
+		this.connId = connId;
+	}
+
 	public User getUser() {
 		return user;
 	}
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public Integer getRoomId() {
+		return roomId;
+	}
+
+	public void setRoomId(Integer roomId) {
+		this.roomId = roomId;
+	}
+
+	public Set<Integer> getExtRooms() {
+		return extRooms;
+	}
+
+	public void setExtRooms(Set<Integer> extRooms) {
+		this.extRooms = extRooms;
+	}
+
+	public Integer getPreRoomId() {
+		return preRoomId;
+	}
+
+	public void setPreRoomId(Integer preRoomId) {
+		this.preRoomId = preRoomId;
 	}
 
 	@Override

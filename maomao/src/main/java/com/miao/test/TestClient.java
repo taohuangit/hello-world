@@ -16,8 +16,8 @@ public class TestClient {
 		byte[] header = new byte[6];
 		byte[] json = value.getBytes();
 		
-		ByteUtil.putInt(header, json.length, 0);
-		ByteUtil.putShort(header, cmd, 4);
+		ByteUtil.putInt(header, 0, json.length);
+		ByteUtil.putShort(header, 4, cmd);
 		
 		OutputStream os = socket.getOutputStream();
 		os.write(header);

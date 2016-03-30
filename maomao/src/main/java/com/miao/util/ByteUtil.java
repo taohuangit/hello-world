@@ -5,13 +5,13 @@ public class ByteUtil {
      * 转换short为byte 
      *  
      * @param b 
-     * @param s 
+     * @param value 
      * 需要转换的short 
      * @param index 
      */  
-    public static void putShort(byte b[], short s, int index) {  
-        b[index + 0] = (byte) (s >> 8);  
-        b[index + 1] = (byte) (s >> 0);  
+    public static void putShort(byte b[], int index, short value) {  
+        b[index + 0] = (byte) (value >> 8);  
+        b[index + 1] = (byte) (value >> 0);  
     }  
   
     /** 
@@ -30,14 +30,14 @@ public class ByteUtil {
      * 转换int为byte数组 
      *  
      * @param bb 
-     * @param x 
+     * @param value 
      * @param index 
      */  
-    public static void putInt(byte[] bb, int x, int index) {  
-        bb[index + 0] = (byte) (x >> 24);  
-        bb[index + 1] = (byte) (x >> 16);  
-        bb[index + 2] = (byte) (x >> 8);  
-        bb[index + 3] = (byte) (x >> 0);  
+    public static void putInt(byte[] bb, int index, int value) {  
+        bb[index + 0] = (byte) (value >> 24);  
+        bb[index + 1] = (byte) (value >> 16);  
+        bb[index + 2] = (byte) (value >> 8);  
+        bb[index + 3] = (byte) (value >> 0);  
     }  
   
     /** 
@@ -271,6 +271,7 @@ public class ByteUtil {
        }      
        return data;
     }
+    /*
     public static short htons(short s){
         short rslt = 0;
         byte [] bs1 = new byte[2];
@@ -287,4 +288,5 @@ public class ByteUtil {
         rslt = ByteUtil.getInt(bs2, 0);
         return rslt;
     }
+    */
 }

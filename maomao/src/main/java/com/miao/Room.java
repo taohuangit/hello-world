@@ -24,15 +24,10 @@ public class Room {
 	}
 	
 	public void addIfAbsent(Connection conn) {
-		connections.putIfAbsent(conn.getId(), conn);
+		connections.putIfAbsent(conn.getConnId(), conn);
 	}
 
 	public ConcurrentHashMap<String, Connection> getConnections() {
 		return connections;
 	}
-
-	public void setConnections(ConcurrentHashMap<String, Connection> connections) {
-		this.connections = connections;
-	}
-	
 }

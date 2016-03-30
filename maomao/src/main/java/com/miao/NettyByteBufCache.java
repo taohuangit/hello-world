@@ -10,7 +10,12 @@ import java.util.concurrent.TimeUnit;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
 import io.netty.util.ReferenceCountUtil;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 
 public class NettyByteBufCache {
 
@@ -70,7 +75,7 @@ public class NettyByteBufCache {
 	public static ByteBuf alloc() {
 		try {
 			ByteBuf buf = bufferQueue.take();
-			System.out.println("alloc: " + buf);
+//			System.out.println("alloc: " + buf);
 			return buf;
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
@@ -79,8 +84,29 @@ public class NettyByteBufCache {
 	}
 
 	public static void release(ByteBuf buf) {
-		System.out.println("release: " + buf);
+//		System.out.println("release: " + buf);
 		toCleanQueue.add(buf);
+	}
+	
+	public static void flushData(ChannelHandlerContext ctx, byte[] data) {
+		final ByteBuf buf = NettyByteBufCache.alloc();
+		if (buf == null) {
+			return;
+		}
+		
+		buf.writeBytes(data);
+		Channel channel = ctx.channel();
+		if (channel.isWritable()) {
+			ChannelPromise promise = channel.newPromise();
+			promise.addListener(new GenericFutureListener<Future<Void>>() {
+
+				public void operationComplete(Future<Void> future) throws Exception {
+					NettyByteBufCache.release(buf);
+				}
+				
+			});
+			channel.writeAndFlush(buf, promise);
+		}
 	}
 
 }

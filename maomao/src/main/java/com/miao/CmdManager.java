@@ -29,14 +29,12 @@ public class CmdManager {
 		System.out.println(cmd + ": " + json);
 		switch (cmd) {
 		
-		case COMMAND.INTO_ROOM:
+		case COMMAND.INTO_ROOMS:
 			User user = new User();
 			user.setUid(json.getInteger("uid"));
-			ConnectionManager.intoRoom(ctx, user, json.getInteger("rid"));
 			break;
 			
-		case COMMAND.OUTOF_ROOM:
-			ConnectionManager.outofRoom(ctx);
+		case COMMAND.OUTOF_ROOMS:
 			break;
 		case COMMAND.SEND_BARRAGE:
 			Connection conn = ConnectionManager.getConnection(connId);
@@ -49,8 +47,6 @@ public class CmdManager {
 			Barrage barrage = new Barrage();
 			barrage.setConnId(connId);
 			barrage.setUser(conn.getUser());
-			barrage.setRoomId(conn.getCurrentRoomId());
-			barrage.setBarrage(json.getString("barrage"));
 			try {
 				barrageCache.put(barrage);
 			} catch (InterruptedException e) {
@@ -64,6 +60,8 @@ public class CmdManager {
 			
 		case COMMAND.ROOM_LIST:
 			ConnectionManager.roomList(ctx);
+			break;
+		case COMMAND.ROOM_INFO:
 			break;
 		default:
 			break;
