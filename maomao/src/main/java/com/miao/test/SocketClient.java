@@ -83,7 +83,7 @@ public class SocketClient {
 				byte[] bHeader = new byte[6];
 				byte[] barrageJson = bJson.getBytes();
 				ByteUtil.putInt(bHeader, 0, barrageJson.length);
-				ByteUtil.putShort(bHeader, 4, COMMAND.SEND_BARRAGE);
+				ByteUtil.putShort(bHeader, 4, COMMAND.SEND_BARRAGE_REQUEST);
 
 				os.write(bHeader);
 				os.write(barrageJson);

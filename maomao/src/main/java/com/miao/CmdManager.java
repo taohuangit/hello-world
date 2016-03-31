@@ -23,7 +23,7 @@ public class CmdManager {
 			
 		case COMMAND.OUTOF_ROOMS:
 			break;
-		case COMMAND.SEND_BARRAGE:
+		case COMMAND.SEND_BARRAGE_REQUEST:
 	
 			break;
 			

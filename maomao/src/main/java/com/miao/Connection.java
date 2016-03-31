@@ -17,6 +17,12 @@ public class Connection {
 	
 	private volatile UserStatus userStatus = UserStatus.OFF;
 	
+	private long lastActiveTime;
+	
+	private int msgErrorCount;
+	
+	
+	
 	public enum RoomStatus {
 		INIT, REQUEST, AUTH, INROOM, OUTROOM
 	}
@@ -71,6 +77,22 @@ public class Connection {
 
 	public void setUserStatus(UserStatus userStatus) {
 		this.userStatus = userStatus;
+	}
+
+	public long getLastActiveTime() {
+		return lastActiveTime;
+	}
+
+	public void setLastActiveTime(long lastActiveTime) {
+		this.lastActiveTime = lastActiveTime;
+	}
+
+	public int getMsgErrorCount() {
+		return msgErrorCount;
+	}
+
+	public void setMsgErrorCount(int msgErrorCount) {
+		this.msgErrorCount = msgErrorCount;
 	}
 	
 }

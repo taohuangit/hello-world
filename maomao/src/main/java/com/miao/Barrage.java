@@ -5,11 +5,11 @@ public class Barrage {
 	
 	private User user;
 	
-	private Integer platformId;
-	
 	private Integer roomId;
 	
 	private String content;
+	
+	private String ip;
 
 	public String getConnId() {
 		return connId;
@@ -35,10 +35,6 @@ public class Barrage {
 		this.user = user;
 	}
 
-	public Integer getPlatformId() {
-		return platformId;
-	}
-
 	public String getContent() {
 		return content;
 	}
@@ -47,7 +43,12 @@ public class Barrage {
 		this.content = content;
 	}
 
-	public void setPlatformId(Integer platformId) {
-		this.platformId = platformId;
+	public String getIp() {
+		return ip;
 	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
+	
 }

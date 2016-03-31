@@ -1,6 +1,8 @@
 package com.miao;
 
 public class User {
+	private String platform;
+	
 	private int uid;
 	
 	private String username;
@@ -19,6 +21,14 @@ public class User {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	public String getPlatform() {
+		return platform;
+	}
+
+	public void setPlatform(String platform) {
+		this.platform = platform;
 	}
 	
 }

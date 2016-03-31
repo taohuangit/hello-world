@@ -100,7 +100,7 @@ public class TestClient {
 		    		System.arraycopy(header, 0, bb, 0, header.length);
 		    		System.arraycopy(json, 0, bb, header.length, json.length);
 		    		
-		    		NettyByteBufCache.flushData(ctx, bb);
+		    		NettyByteBufCache.flushData(ctx, bb, 256);
 				}
 				
 			}, 10, 2, TimeUnit.SECONDS);
@@ -121,7 +121,7 @@ public class TestClient {
 			String cmdid = json.getString("cmdid");
 			if (cmdid.equals(ClientProfile.CMD_KEEPALIVE)) {
 				heartbeatTask.setLastTime(System.currentTimeMillis());
-				NettyByteBufCache.flushData(ctx, dst);
+				NettyByteBufCache.flushData(ctx, dst, 256);
 			}
 			
 			

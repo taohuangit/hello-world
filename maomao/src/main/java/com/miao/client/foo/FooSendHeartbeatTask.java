@@ -50,7 +50,7 @@ public class FooSendHeartbeatTask implements Runnable {
 			System.out.println("timeout: " + ctx + " " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(lastTime)) );
 			ctx.close();
 		} else {
-			NettyByteBufCache.flushData(ctx, DATA);
+			NettyByteBufCache.flushData(ctx, DATA, 256);
 			System.out.println("send heartbeat: " + ctx + " " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(lastTime)));
 			ctx.executor().schedule(this, INTERVAL, TimeUnit.SECONDS);
 		}

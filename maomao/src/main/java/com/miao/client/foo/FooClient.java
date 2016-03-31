@@ -226,7 +226,7 @@ public class FooClient {
 		
 		@Override
 		public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-			ConnectionManager.outofRoom(connection);
+			ConnectionManager.outofRoom(connection.getConnId());
 		}
 		
 		@Override
@@ -245,7 +245,7 @@ public class FooClient {
 		public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 			cause.printStackTrace();
 			
-			ConnectionManager.outofRoom(connection);
+			ConnectionManager.outofRoom(connection.getConnId());
 			
 			ctx.close();
 		}
