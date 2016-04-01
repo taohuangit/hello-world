@@ -30,7 +30,7 @@ public class NettyByteBufCache {
 
 	public static final ByteBufAllocator allocator = PooledByteBufAllocator.DEFAULT;
 	
-	private static final long CLEAN_PERIOD = 1;
+	private static final long CLEAN_PERIOD = 3;
 	
 	private static Map<Integer, QueueCache> queueCaches = new HashMap<Integer, NettyByteBufCache.QueueCache>();
 
@@ -51,6 +51,9 @@ public class NettyByteBufCache {
 			while (!Thread.currentThread().isInterrupted()) {
 				
 				for (QueueCache cache : queueCaches.values()) {
+					if (cache.cleanQueue.size() < 100) {
+						continue;
+					}
 					final List<ByteBuf> toClean = new ArrayList<ByteBuf>(cache.cleanQueue.size());
 					cache.cleanQueue.drainTo(toClean);
 					for (ByteBuf buf : toClean) {
@@ -131,7 +134,7 @@ public class NettyByteBufCache {
 			this.size = size;
 			this.length = length;
 			queue = new ConcurrentLinkedQueue<ByteBuf>();
-			cleanQueue = new ArrayBlockingQueue<ByteBuf>(1024);
+			cleanQueue = new ArrayBlockingQueue<ByteBuf>(4096);
 		}
 
 		public int getSize() {

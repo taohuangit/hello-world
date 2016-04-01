@@ -21,4 +21,6 @@ public class COMMAND {
 	public static final short HEARTBEAT_REQUEST = 0;
 	
 	public static final short SERVER_STATUS = 100;
+	
+	public static final short ROOM_STATUS = 101;
 }

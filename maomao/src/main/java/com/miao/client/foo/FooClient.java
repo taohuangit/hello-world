@@ -142,7 +142,6 @@ public class FooClient {
 			connection.setConnId(ctx.channel().id().toString());
 			connection.setCtx(ctx);
 			connection.setUser(null);
-			connection.setRoomStatus(Connection.RoomStatus.REQUEST);
 			Map<Integer, RoomInfo> rooms = new HashMap<Integer, RoomInfo>();
 //			rooms.put(1, new RoomInfo(1, 0));
 //			rooms.put(2, new RoomInfo(2, 0));
@@ -188,7 +187,6 @@ public class FooClient {
 				for (RoomInfo r : connection.getRooms().values()) {
 					r.setStatus(1);
 				}
-				connection.setRoomStatus(RoomStatus.AUTH);
 				ConnectionManager.intoRoom(connection);
 			} else if (cmdid.equals(ClientProfile.CMD_INTO_ROOM)) {
 				int roomId = json.getIntValue("rid");
@@ -197,7 +195,6 @@ public class FooClient {
 					
 				} else {
 					connection.getRooms().put(roomId, new RoomInfo(roomId, 1));
-					connection.setRoomStatus(RoomStatus.AUTH);
 					ConnectionManager.intoRoom(connection);
 				}
 			} else if (cmdid.equals(ClientProfile.CMD_LOGIN_REQUEST)) {

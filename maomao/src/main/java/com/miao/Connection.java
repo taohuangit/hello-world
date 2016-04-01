@@ -13,7 +13,7 @@ public class Connection {
 	
 	private Map<Integer, RoomInfo> rooms;
 	
-	private volatile RoomStatus roomStatus = RoomStatus.INIT;
+	private volatile RoomStatus roomStatus = RoomStatus.OUTROOM;
 	
 	private volatile UserStatus userStatus = UserStatus.OFF;
 	
@@ -24,7 +24,7 @@ public class Connection {
 	
 	
 	public enum RoomStatus {
-		INIT, REQUEST, AUTH, INROOM, OUTROOM
+		INROOM, OUTROOM
 	}
 	
 	public enum UserStatus {

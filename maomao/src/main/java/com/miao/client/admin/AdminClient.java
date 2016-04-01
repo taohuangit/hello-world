@@ -122,6 +122,25 @@ public class AdminClient {
 				NettyByteBufCache.flushData(ctx, data, 8192);
 				
 				break;
+			case COMMAND.ROOM_STATUS:
+				ConcurrentHashMap<Integer, Room> rooms2 = ConnectionManager.getRooms();
+
+				Map<Integer, Integer> roomConns2 = new HashMap<Integer, Integer>();
+				for (Room room : rooms2.values()) {
+					roomConns2.put(room.getRoomId(), room.getConnections().size());
+				}
+				
+				byte[] roomInfo2 = JSON.toJSONString(roomConns2).getBytes();
+				
+				byte[] data2 = new byte[6 + roomInfo2.length];
+				ByteUtil.putInt(data2, 0, roomInfo2.length);
+				ByteUtil.putShort(data2, 4, COMMAND.SERVER_STATUS);
+				System.arraycopy(roomInfo2, 0, data2, 6, roomInfo2.length);
+				
+//				System.out.println(json);
+				
+				NettyByteBufCache.flushData(ctx, data2, 8192);
+				break;
 
 			default:
 				ctx.fireChannelRead(msg);

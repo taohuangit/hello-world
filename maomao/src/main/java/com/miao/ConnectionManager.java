@@ -25,20 +25,16 @@ public class ConnectionManager {
 	private static volatile boolean shutdown;
 	
 	static {
-		rooms.put(1, new Room(1));
-		rooms.put(2, new Room(2));
-		rooms.put(3, new Room(3));
-		rooms.put(4, new Room(4));
-		rooms.put(5, new Room(5));
-		rooms.put(6, new Room(6));
-		rooms.put(7, new Room(7));
+		for (int i = 1; i <= 20; i++) {
+			rooms.put(i, new Room(i));
+		}
 		
 		barrageSendThread = new BarrageSendThread();
 		barrageSendThread.start();
 	}
 	
 	public static void intoRoom(Connection conn) {
-		if (conn == null || conn.getRoomStatus() != Connection.RoomStatus.REQUEST) {
+		if (conn == null || conn.getRoomStatus() != Connection.RoomStatus.OUTROOM) {
 			return;
 		}
 		Map<Integer, RoomInfo> infos = conn.getRooms();

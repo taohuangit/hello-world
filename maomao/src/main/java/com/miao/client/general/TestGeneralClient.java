@@ -2,8 +2,13 @@ package com.miao.client.general;
 
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.log4j.Logger;
@@ -33,7 +38,7 @@ public class TestGeneralClient {
 	private static Logger logger = LogUtil.getClientLog();
 	
     public static void main(String[] args) throws Exception {
-    	int count = 1000;
+    	int count = 1;
     	for (int i = 0; i < count; i++) {
     		new Thread(new Runnable() {
 				
@@ -76,6 +81,10 @@ public class TestGeneralClient {
     
     static class InHandler extends ChannelInboundHandlerAdapter {
     	
+    	private final AtomicInteger count = new AtomicInteger();
+    	
+    	final Map<Integer, Set<String>> users = new HashMap<Integer, Set<String>>();
+    	
     	@Override
     	public void channelActive(final ChannelHandlerContext ctx) throws Exception {
     		// heartbeat
@@ -104,7 +113,7 @@ public class TestGeneralClient {
     		
     		// into room
     		IntoRoomRequest intoRoomRequest = new IntoRoomRequest();
-    		intoRoomRequest.setRid(String.valueOf(new Random().nextInt(5) + 1));
+    		intoRoomRequest.setRid(String.valueOf(3));
     		byte[] intoRoomJson = JSON.toJSONString(intoRoomRequest).getBytes();
     		byte[] intoRoomData = new byte[6 + intoRoomJson.length];
     		ByteUtil.putInt(intoRoomData, 0, intoRoomJson.length);
@@ -117,6 +126,12 @@ public class TestGeneralClient {
     		
     		ctx.executor().scheduleAtFixedRate(new Runnable() {
 				public void run() {
+
+					if (count.incrementAndGet() > 10) {
+						
+//						ctx.close();
+					}
+					
 					SendBarrageRequest barrage = new SendBarrageRequest();
 					barrage.setRid(roomId);
 					barrage.setCnt(RandomStringUtils.randomAscii(10));
@@ -129,7 +144,8 @@ public class TestGeneralClient {
 					ctx.writeAndFlush(ctx.alloc().buffer(barrageData.length).writeBytes(barrageData));
 				}
 				
-			}, 2, 2, TimeUnit.SECONDS);
+			}, 1000, new Random().nextInt(100)+1, TimeUnit.MILLISECONDS);
+    		
     	}
     	
         @Override
@@ -141,6 +157,23 @@ public class TestGeneralClient {
 			CharsetDecoder decoder = Charset.forName("utf-8").newDecoder();
 			
 			JSONObject json = JSON.parseObject(dst, 6, dst.length - 6, decoder, JSONObject.class);
+			
+			short cmd = ByteUtil.getShort(dst, 4);
+			switch (cmd) {
+			case COMMAND.SEND_BARRAGE_RESPONSE:
+				int rid = json.getIntValue("rid");
+				String username = json.getJSONObject("issuer").getString("uname");
+				Set<String> names = users.get(rid);
+				if (names == null) {
+					names = new HashSet<String>();
+					users.put(rid, names);
+				}
+				names.add(username);
+				break;
+
+			default:
+				break;
+			}
 			
 			System.out.print(BinHexUtil.binToHex(dst, 0, 6));
 			System.out.println(json);

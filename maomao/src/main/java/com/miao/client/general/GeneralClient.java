@@ -4,6 +4,7 @@ import java.net.SocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 
@@ -42,13 +43,15 @@ public class GeneralClient {
 	
 	private int port;
 	
+	private static final AtomicInteger count = new AtomicInteger();
+	
 	public GeneralClient(int p) {
 		this.port = p;
 	}
 	
 	public void init() {
-		EventLoopGroup bossgroup = new NioEventLoopGroup();
-		EventLoopGroup workergroup = new NioEventLoopGroup();
+		EventLoopGroup bossgroup = new NioEventLoopGroup(4);
+		EventLoopGroup workergroup = new NioEventLoopGroup(4);
 		System.out.println(bossgroup);
 		System.out.println(workergroup);
 		
@@ -65,9 +68,9 @@ public class GeneralClient {
 				protected void initChannel(SocketChannel sc) throws Exception {
 					sc.pipeline().addLast(new LengthFieldBasedFrameDecoder(4096, 0, 4, 2, 0));
 					sc.pipeline().addLast(new InHandler());
-					sc.pipeline().addLast(new OutHandler());
 				}
 			});
+			
 			
 			
 			try {
@@ -116,6 +119,7 @@ public class GeneralClient {
 		@Override
 		public void close(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
 			ConnectionManager.outofRoom(ctx.channel().id().toString());
+			logger.info("out close:" + ctx + " count: " + count.decrementAndGet());
 		}
 		
 		@Override
@@ -139,6 +143,7 @@ public class GeneralClient {
 		@Override
 		public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 			ConnectionManager.outofRoom(ctx.channel().id().toString());
+			logger.info("out exceptionCaught:" + ctx + " count: " + count.decrementAndGet());
 		}
 	}
 	
@@ -161,8 +166,10 @@ public class GeneralClient {
 			conn.setCtx(ctx);
 			conn.setRooms(null);
 			conn.setUser(null);
-			conn.setRoomStatus(RoomStatus.INIT);
+			conn.setRoomStatus(RoomStatus.OUTROOM);
 			conn.setUserStatus(UserStatus.OFF);
+			
+			count.incrementAndGet();
 		}
 		
 		/**
@@ -191,8 +198,9 @@ public class GeneralClient {
 			
 			switch (cmd) {
 			case COMMAND.INTO_ROOMS:
-				if (conn.getRoomStatus() != RoomStatus.INIT) {
-					return;
+				if (conn.getRoomStatus() == RoomStatus.INROOM) {
+					ConnectionManager.outofRoom(conn.getConnId());
+					conn.setRoomStatus(RoomStatus.OUTROOM);
 				}
 				String rid = json.getString("rid");
 				if (rid.contains("+")) {
@@ -214,9 +222,11 @@ public class GeneralClient {
 					conn.setRooms(new HashMap<Integer, RoomInfo>());
 					conn.getRooms().put(roomId, new RoomInfo(roomId, 1));
 				}
-				conn.setRoomStatus(RoomStatus.REQUEST);
 				
 				ConnectionManager.intoRoom(conn);
+				break;
+			case COMMAND.OUTOF_ROOMS:
+				ConnectionManager.outofRoom(conn.getConnId());
 				break;
 			case COMMAND.SEND_BARRAGE_REQUEST:
 				if (conn.getRoomStatus() != RoomStatus.INROOM || conn.getUserStatus() != UserStatus.ON) {
@@ -257,7 +267,7 @@ public class GeneralClient {
 				break;
 			default:
 				
-				conn.setMsgErrorCount(conn.getMsgErrorCount());
+//				conn.setMsgErrorCount(conn.getMsgErrorCount());
 				break;
 			}
 		}
@@ -284,6 +294,7 @@ public class GeneralClient {
 		@Override
 		public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 			close(conn);
+			logger.info("in channelInactive:" + ctx + " count: " + count.decrementAndGet());
 		}
 		
 		@Override
@@ -302,6 +313,7 @@ public class GeneralClient {
 		public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 			logger.info(cause);
 			close(conn);
+			logger.info("in exceptionCaught:" + ctx);
 		}
 		
 		private void close(Connection conn) {
