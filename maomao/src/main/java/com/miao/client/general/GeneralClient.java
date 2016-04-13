@@ -1,6 +1,5 @@
 package com.miao.client.general;
 
-import java.net.SocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.HashMap;
@@ -29,8 +28,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.ChannelOutboundHandlerAdapter;
-import io.netty.channel.ChannelPromise;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -52,8 +49,6 @@ public class GeneralClient {
 	public void init() {
 		EventLoopGroup bossgroup = new NioEventLoopGroup(4);
 		EventLoopGroup workergroup = new NioEventLoopGroup(4);
-		System.out.println(bossgroup);
-		System.out.println(workergroup);
 		
 		logger.info("startup");
 
@@ -71,8 +66,6 @@ public class GeneralClient {
 				}
 			});
 			
-			
-			
 			try {
 				ChannelFuture future = server.bind(port).sync();
 				
@@ -87,63 +80,6 @@ public class GeneralClient {
 			
 		} finally {
 			
-		}
-	}
-	
-	static class OutHandler extends ChannelOutboundHandlerAdapter {
-		@Override
-		public void disconnect(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
-			// TODO Auto-generated method stub
-			super.disconnect(ctx, promise);
-		}
-		
-		@Override
-		public void deregister(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
-			// TODO Auto-generated method stub
-			super.deregister(ctx, promise);
-		}
-		
-		@Override
-		public void bind(ChannelHandlerContext ctx, SocketAddress localAddress, ChannelPromise promise)
-				throws Exception {
-			// TODO Auto-generated method stub
-			super.bind(ctx, localAddress, promise);
-		}
-		
-		@Override
-		public void connect(ChannelHandlerContext ctx, SocketAddress remoteAddress, SocketAddress localAddress,
-				ChannelPromise promise) throws Exception {
-			// TODO Auto-generated method stub
-			super.connect(ctx, remoteAddress, localAddress, promise);
-		}
-		@Override
-		public void close(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
-			ConnectionManager.outofRoom(ctx.channel().id().toString());
-			logger.info("out close:" + ctx + " count: " + count.decrementAndGet());
-		}
-		
-		@Override
-		public void read(ChannelHandlerContext ctx) throws Exception {
-			// TODO Auto-generated method stub
-			super.read(ctx);
-		}
-		
-		@Override
-		public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-			// TODO Auto-generated method stub
-			super.write(ctx, msg, promise);
-		}
-		
-		@Override
-		public void flush(ChannelHandlerContext ctx) throws Exception {
-			// TODO Auto-generated method stub
-			super.flush(ctx);
-		}
-		
-		@Override
-		public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-			ConnectionManager.outofRoom(ctx.channel().id().toString());
-			logger.info("out exceptionCaught:" + ctx + " count: " + count.decrementAndGet());
 		}
 	}
 	

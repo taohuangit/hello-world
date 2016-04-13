@@ -86,6 +86,5 @@ public class GeneralBarrage {
 		public void setIp(String ip) {
 			this.ip = ip;
 		}
-		
 	}
 }

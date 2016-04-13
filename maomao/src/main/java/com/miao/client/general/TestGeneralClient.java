@@ -37,8 +37,13 @@ public class TestGeneralClient {
 	
 	private static Logger logger = LogUtil.getClientLog();
 	
+	private static String host = "192.168.101.64";
+	
+	private static int port = 8080;
+	
+	private static int count = 1000;
+	
     public static void main(String[] args) throws Exception {
-    	int count = 1;
     	for (int i = 0; i < count; i++) {
     		new Thread(new Runnable() {
 				
@@ -70,7 +75,7 @@ public class TestGeneralClient {
             });
 
             // Start the client.
-            ChannelFuture f = b.connect("127.0.0.1", 8080).sync(); // (5)
+            ChannelFuture f = b.connect(host, port).sync(); // (5)
 
             // Wait until the connection is closed.
             f.channel().closeFuture().sync();
@@ -128,7 +133,6 @@ public class TestGeneralClient {
 				public void run() {
 
 					if (count.incrementAndGet() > 10) {
-						
 //						ctx.close();
 					}
 					
@@ -144,7 +148,7 @@ public class TestGeneralClient {
 					ctx.writeAndFlush(ctx.alloc().buffer(barrageData.length).writeBytes(barrageData));
 				}
 				
-			}, 1000, new Random().nextInt(100)+1, TimeUnit.MILLISECONDS);
+			}, 1000, new Random().nextInt(999)+1, TimeUnit.MILLISECONDS);
     		
     	}
     	
@@ -157,6 +161,9 @@ public class TestGeneralClient {
 			CharsetDecoder decoder = Charset.forName("utf-8").newDecoder();
 			
 			JSONObject json = JSON.parseObject(dst, 6, dst.length - 6, decoder, JSONObject.class);
+			
+			System.out.print(BinHexUtil.binToHex(dst, 0, 6));
+			System.out.println(json);
 			
 			short cmd = ByteUtil.getShort(dst, 4);
 			switch (cmd) {
@@ -174,9 +181,6 @@ public class TestGeneralClient {
 			default:
 				break;
 			}
-			
-			System.out.print(BinHexUtil.binToHex(dst, 0, 6));
-			System.out.println(json);
 			
         }
 
